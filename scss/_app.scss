@@ -1,0 +1,25 @@
+.container {
+    margin: 0 auto;
+    padding-top: 250px;
+    width: 300px;
+
+    button {
+        background: $button-background;
+        border: 0;
+        border-radius: $border-radius;
+        color: $button-text;
+        display: block;
+        font-size: 30px;
+        height: 75px;
+        margin: 0 auto;
+        width: 150px;
+    }
+
+    p {
+        color: $label-color;
+        font-family: Arial, sans-serif;
+        font-size: 20px;
+        font-weight: bolder;
+        text-align: center;
+    }
+}

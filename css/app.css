@@ -1,0 +1,22 @@
+.container {
+  margin: 0 auto;
+  padding-top: 250px;
+  width: 300px; }
+  .container button {
+    background: #377ce4;
+    border: 0;
+    border-radius: 5px;
+    color: #fff;
+    display: block;
+    font-size: 30px;
+    height: 75px;
+    margin: 0 auto;
+    width: 150px; }
+  .container p {
+    color: #2e2c30;
+    font-family: Arial, sans-serif;
+    font-size: 20px;
+    font-weight: bolder;
+    text-align: center; }
+
+/*# sourceMappingURL=app.css.map */

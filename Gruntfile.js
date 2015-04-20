@@ -53,7 +53,7 @@ module.exports = function (grunt) {
                 src: 'scss/**/*.scss'
             }
         },
-        // Image Min
+        // Image Minification
         imagemin: {
             build: {
                 files: {
@@ -61,7 +61,7 @@ module.exports = function (grunt) {
                 }
             }
         },
-        // Uglify
+        // JS - Uglify
         uglify: {
             options: {
                 sourceMap: true,
@@ -73,7 +73,7 @@ module.exports = function (grunt) {
                 }
             }
         },
-        // CSS MIN
+        // CSS Minification
         cssmin: {
             build: {
                 files: {
@@ -105,8 +105,24 @@ module.exports = function (grunt) {
                     }
                 }
             }
+        },
+        // Clean ./build directory
+        clean: {
+            build: ['./build']
+        },
+        // Prepare HTML for the release
+        processhtml: {
+            build: {
+                options: {
+                    data: {
+                        version: '1.1.1.1'
+                    }
+                },
+                files: {
+                    'build/index.html': ['./index.html']
+                }
+            }
         }
-        // CLEAN BUILD DIRECTORY
         // BUMP VERSION
         // UNIT TESTS
         // COMMIT
@@ -120,5 +136,8 @@ module.exports = function (grunt) {
     grunt.registerTask('server', ['browserSync:dev', 'watch']);
 
     // BUILD TASKS
-
+    grunt.registerTask('prepare', ['scsslint', 'jshint']);
+    grunt.registerTask('build', ['clean', 'processhtml:build'], function () {
+        console.log('Build completed');
+    });
 };

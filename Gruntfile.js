@@ -122,10 +122,17 @@ module.exports = function (grunt) {
                     'build/index.html': ['./index.html']
                 }
             }
+        },
+        // BUMP VERSION + COMMIT
+        bump: {
+            options: {
+                files: ['package.json'],
+                commitMessage: 'Release v%VERSION%',
+                commitFiles: ['-a'],
+                push: false
+            }
         }
-        // BUMP VERSION
         // UNIT TESTS
-        // COMMIT
     });
 
     // 3. Register tasks

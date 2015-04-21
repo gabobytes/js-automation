@@ -1,9 +1,10 @@
 .container {
   margin: 0 auto;
+  max-width: 400px;
   padding-top: 250px;
-  width: 300px; }
+  width: 90%; }
   .container button {
-    background: #377ce4;
+    background: #50afdd;
     border: 0;
     border-radius: 5px;
     color: #fff;
@@ -11,7 +12,7 @@
     font-size: 30px;
     height: 75px;
     margin: 0 auto;
-    width: 150px; }
+    width: 100%; }
   .container p {
     color: #2e2c30;
     font-family: Arial, sans-serif;

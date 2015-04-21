@@ -104,15 +104,19 @@ module.exports = function (grunt) {
                 tasks: ['scsslint:dev', 'sass:dev']
             },
             scripts: {
-                files: ['app/scripts/**/*.js'],
+                files: ['app/scripts/**/*.js', '!app/scripts/main.js'],
                 tasks: ['jshint', 'concat:dev']
             }
         },
         // Server + Live Reload
         browserSync: {
+            options: {
+                browser: ['google chrome'],
+                injectChanges: false
+            },
             dev: {
                 bsFiles: {
-                    src: ['app/css/*.css', 'app/index.html', 'app/scripts/*.js'],
+                    src: 'app/**/*.{js,css,html}'
                 },
                 options: {
                     watchTask: true,
@@ -158,12 +162,11 @@ module.exports = function (grunt) {
     // 3. Register tasks
 
     // DEVELOPMENT TASKS
-    grunt.registerTask('default', ['quality', 'concat:dev', 'sass:dev']);
     grunt.registerTask('quality', ['jshint:dev', 'scsslint:dev']);
     grunt.registerTask('server', ['browserSync:dev', 'watch']);
 
     // BUILD TASKS
-    grunt.registerTask('prepare', [
+    grunt.registerTask('prepare', 'Prepare everything for the build', [
         'clean:prepare', // Delete .tmp folder
         'clean:build', // Delete build folder
         'scsslint', // Lint scss
@@ -176,7 +179,7 @@ module.exports = function (grunt) {
         'clean:prepare'
     ]);
 
-    grunt.registerTask('testBuild', ['browserSync:build']); // Check if the build works fine.
+    grunt.registerTask('testBuild', 'Test production build before release', ['browserSync:build']); // Check if the build works fine.
 
     grunt.registerTask('build', 'Create the build and commit changes', function () {
         grunt.task.run('prepare');

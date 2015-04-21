@@ -11,15 +11,20 @@ module.exports = function (grunt) {
                 options: {
                     sourceMap: true
                 },
-                src: ['app/popayan.js', 'app/**/*.js'],
-                dest: 'scripts/main.js',
+                src: [
+                    'app/scripts/popayan.js',
+                    'app/scripts/**/*.js',
+                    '!app/scripts/main.js' // Exclude app.js from concat
+                ],
+                dest: 'app/scripts/main.js',
             },
             build: {
-                options: {
-                    sourceMap: false
-                },
-                src: ['app/popayan.js', 'app/**/*.js'],
-                dest: 'scripts/main.js',
+                src: [
+                    'app/scripts/popayan.js',
+                    'app/scripts/**/*.js',
+                    '!app/scripts/main.js' // Exclude app.js from concat
+                ],
+                dest: '.tmp/scripts/main.js',
             }
         },
         // Compile *.scss files
@@ -29,7 +34,15 @@ module.exports = function (grunt) {
                     sourceMap: true
                 },
                 files: {
-                    'css/app.css': 'scss/app.scss'
+                    'app/css/app.css': 'app/scss/app.scss'
+                }
+            },
+            build: {
+                options: {
+                    sourceMap: false
+                },
+                files: {
+                    '.tmp/css/app.css': 'app/scss/app.scss'
                 }
             }
         },
@@ -41,7 +54,7 @@ module.exports = function (grunt) {
                 jshintrc: '.jshintrc'
             },
             // Specific lint tasks for each env
-            dev: ['Gruntfile.js', 'app/**/*.js']
+            dev: ['Gruntfile.js', 'app/scripts/**/*.js']
         },
         // Lint SCSS
         scsslint: {
@@ -50,14 +63,14 @@ module.exports = function (grunt) {
                     config: '.scss-lint.yml',
                     colorizeOutput: true
                 },
-                src: 'scss/**/*.scss'
+                src: 'app/scss/**/*.scss'
             }
         },
         // Image Minification
         imagemin: {
             build: {
                 files: {
-                    'build/img/wallpaper.jpg': 'img/wallpaper.jpg'
+                    'build/img/wallpaper.jpg': 'app/img/wallpaper.jpg'
                 }
             }
         },
@@ -65,11 +78,14 @@ module.exports = function (grunt) {
         uglify: {
             options: {
                 sourceMap: true,
-                sourceMapName: 'scripts/main.js.map'
+                sourceMapName: 'app/scripts/main.js.map'
             },
             build: {
+                options: {
+                    sourceMap: false,
+                },
                 files: {
-                    'build/scripts/main.js': 'scripts/main.js'
+                    'build/scripts/app.min.js': '.tmp/scripts/main.js'
                 }
             }
         },
@@ -77,18 +93,18 @@ module.exports = function (grunt) {
         cssmin: {
             build: {
                 files: {
-                    'build/css/app.css': 'css/app.css'
+                    'build/css/app.min.css': '.tmp/css/app.css'
                 }
             }
         },
         // GRUNT WATCH
         watch: {
             sass: {
-                files: ['scss/**/*.scss'],
+                files: ['app/scss/**/*.scss'],
                 tasks: ['scsslint:dev', 'sass:dev']
             },
             scripts: {
-                files: ['app/**/*.js'],
+                files: ['app/scripts/**/*.js'],
                 tasks: ['jshint', 'concat:dev']
             }
         },
@@ -96,30 +112,34 @@ module.exports = function (grunt) {
         browserSync: {
             dev: {
                 bsFiles: {
-                    src: ['css/app.css', 'index.html'],
+                    src: ['app/css/*.css', 'app/index.html', 'app/scripts/*.js'],
                 },
                 options: {
                     watchTask: true,
                     server: {
-                        baseDir: './'
+                        baseDir: './app'
+                    }
+                }
+            },
+            build: {
+                options: {
+                    watchTask: false,
+                    server: {
+                        baseDir: './build'
                     }
                 }
             }
         },
-        // Clean ./build directory
+        // Clean directories
         clean: {
-            build: ['./build']
+            prepare: ['.tmp'],
+            build: ['build']
         },
         // Prepare HTML for the release
         processhtml: {
             build: {
-                options: {
-                    data: {
-                        version: '1.1.1.1'
-                    }
-                },
                 files: {
-                    'build/index.html': ['./index.html']
+                    'build/index.html': 'app/index.html'
                 }
             }
         },
@@ -128,7 +148,7 @@ module.exports = function (grunt) {
             options: {
                 files: ['package.json'],
                 commitMessage: 'Release v%VERSION%',
-                commitFiles: ['-a'],
+                commitFiles: ['-a'], // Commit all files
                 push: false
             }
         }
@@ -143,8 +163,22 @@ module.exports = function (grunt) {
     grunt.registerTask('server', ['browserSync:dev', 'watch']);
 
     // BUILD TASKS
-    grunt.registerTask('prepare', ['scsslint', 'jshint']);
-    grunt.registerTask('build', ['clean', 'processhtml:build'], function () {
-        console.log('Build completed');
+    grunt.registerTask('prepare', [
+        'clean:prepare', // Delete .tmp folder
+        'clean:build', // Delete build folder
+        'scsslint', // Lint scss
+        'jshint', // Lint js
+        'sass:build', // Compile sass into ./tpm
+        'cssmin:build', // Minify .tmp/css/app.css -> build/css/app.min.css
+        'concat:build', // Concat *js files into build/app.min.js
+        'uglify:build', // Uglify .tmp/scripts/main.js -> build/scripts/app.min.js
+        'processhtml', // Transform HTML to prod
+        'clean:prepare'
+    ]);
+
+    grunt.registerTask('testBuild', ['browserSync:build']); // Check if the build works fine.
+
+    grunt.registerTask('build', 'Create the build and commit changes', function () {
+        grunt.task.run('prepare');
     });
 };
